@@ -16,7 +16,7 @@ $password = "";
 $dbname = "library";
 
 // Create a new database connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+$conn = mysqli_connect($servername, $username, $password, $dbname);
 
 // Check the connection
 if ($conn->connect_error) {
@@ -27,7 +27,7 @@ if ($conn->connect_error) {
 $sql = "SELECT b.id AS book_id, b.name AS book_name, a.author_name, b.category
         FROM book b
         INNER JOIN author a ON b.author_id = a.id";
-$result = $conn->query($sql);
+$result = mysqli_query($conn, $sql);
 
 ?>
 

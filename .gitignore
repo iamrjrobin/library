@@ -6,3 +6,7 @@ dashboard/
 webalizer/
 
 calc_01.php
+
+.vscode/
+
+.idea/

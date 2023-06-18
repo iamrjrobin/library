@@ -3,9 +3,36 @@
 session_start();
 
 // Check if the user is already logged in, redirect to the home page
-if (isset($_SESSION['user_id'])) {
-    header("Location: view_books.php");
-    exit;
+if (isset($_SESSION['email'])) {
+    // if the user is admin then redirect to admin page else redirect to view_books page
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $database = "library";
+
+    $session_email = $_SESSION['email'];
+
+    $conn = mysqli_connect($servername, $username, $password, $database);
+    // Check connection
+    if (!$conn) {
+      die("Connection failed: " . mysqli_connect_error());
+    }
+
+    // sql to check the user is admin or not
+    $sql = "SELECT * FROM user WHERE email='$session_email' AND is_admin=1";
+    $result = mysqli_query($conn, $sql);
+
+    if(mysqli_num_rows($result) == 0) {
+        header("Location: view_books.php");
+        mysqli_close($conn);
+        exit;
+    }
+    else {
+        header("Location: admin.php");
+        mysqli_close($conn);
+        exit;
+    }
+
 }
 
 // Check if the form is submitted
@@ -34,33 +61,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "<script>alert('Email does not exist!');</script>";
     }
 
-    // Check if the password is correct
-    $u_password = password_hash($u_password, PASSWORD_DEFAULT);
-    $sql = "SELECT * FROM user WHERE email='$email' AND password='$u_password'";
-    $result = mysqli_query($conn, $sql);
+    // get the user
+    // hashed password
+    $hash_pass = mysqli_fetch_assoc($result)['password'];
 
-    if (mysqli_num_rows($result) == 0) {
-        echo "<script>alert('Email or Password is incorrect!');</script>";
-    }
-
-    // if the user is admin then redirect to admin page
-    $sql = "SELECT * FROM user WHERE email='$email' AND is_admin=1";
-    $result = mysqli_query($conn, $sql);
-    // set session
-    $_SESSION['user_id'] = $email;
-
-    if (mysqli_num_rows($result) == 0) {
-        header("Location: view_books.php");
+    if (password_verify($u_password, $hash_pass) == false) {
+        echo "<script>alert('Incorrect password or email!');</script>";
+        mysqli_close($conn);
         exit;
     }
+
     else {
-        header("Location: admin.php");
-        exit;
-    }
+      // if the user is admin then redirect to admin page
+      $sql = "SELECT * FROM user WHERE email='$email' AND is_admin=1";
+      $result = mysqli_query($conn, $sql);
+      // set session
+      $_SESSION['user_id'] = $email;
 
-
-    // Close the prepared statement and MySQL connection
-    $conn->close();
+      if(mysqli_num_rows($result) == 0) {
+          header("Location: view_books.php");
+          mysqli_close($conn);
+          exit;
+      }
+      else {
+          header("Location: admin.php");
+          mysqli_close($conn);
+          exit;
+      }
+  }
 }
 ?>
 

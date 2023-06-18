@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Signup Page</title>
   <style>
@@ -87,54 +88,49 @@
       echo "<script>alert('Passwords do not match!');</script>";
     } else {
 
-      $id = uniqid();
-
       $servername = "localhost";
       $username = "root";
       $password = "";
       $database = "library";
 
-      $conn = new mysqli($servername, $username, $password, $database);
+      // Create connection
+      $conn = mysqli_connect($servername, $username, $password, $database);
 
-
-      if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
+      // Check connection
+      if (!$conn) {
+        die("Connection failed: " . mysqli_connect_error());
       }
 
-
+      // check if email already exists
       $sql = "SELECT * FROM user WHERE email='$email'";
-      $result = $conn->query($sql);
-      if ($result->num_rows > 0) {
-
-        echo "<script>alert('Email already exists!');</script>";
-        header(Refresh: 0)
-      }
-
-      // insert into database with hashed password
-
-      // echo alert box
-
-      $u_password = password_hash($u_password, PASSWORD_DEFAULT);
-
-      $sql = "INSERT INTO user (name, password, email )
-              VALUES ('$name', '$u_password', '$email')";
-
       $result = mysqli_query($conn, $sql);
 
+      if (mysqli_num_rows($result) > 0) {
+        echo "<script>alert('Email already exists!');</script>";
+      } else {
+        // insert into database
+        // hash password
+        $u_password = password_hash($u_password, PASSWORD_DEFAULT);
 
-      if ($result === FALSE) {
+        $sql = "INSERT INTO user (email, password, name) VALUES ('$email', '$u_password', '$name')";
+        $result = mysqli_query($conn, $sql);
 
-        echo "Error: " . $sql . "<br>" . $conn->error;
+        if ($result === TRUE && mysqli_affected_rows($conn)) {
+          echo "<script>alert('Signup successful!');</script>";
+          // create session
+          session_start();
+          $_SESSION['email'] = $email;
+          header("Location: login.php");
+          exit();
+        } else {
+          echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+        }
       }
-      else{
-        echo "<script>alert('Signup successful!');</script>";
-        // redict to login page
-        header("Location: login.php");
-      }
-
-      $conn->close();
+      // close connection
+      mysqli_close($conn);
     }
   }
   ?>
 </body>
+
 </html>
