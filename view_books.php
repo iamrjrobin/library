@@ -24,9 +24,7 @@ if ($conn->connect_error) {
 }
 
 // Fetch book details from the database
-$sql = "SELECT b.id AS book_id, b.name AS book_name, a.author_name, b.category
-        FROM book b
-        INNER JOIN author a ON b.author_id = a.id";
+$sql = "SELECT id, name, author_name, category FROM book";
 $result = mysqli_query($conn, $sql);
 
 ?>
@@ -107,8 +105,8 @@ $result = mysqli_query($conn, $sql);
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
                 echo "<tr>";
-                echo "<td>" . $row["book_id"] . "</td>";
-                echo "<td>" . $row["book_name"] . "</td>";
+                echo "<td>" . $row["id"] . "</td>";
+                echo "<td>" . $row["name"] . "</td>";
                 echo "<td>" . $row["author_name"] . "</td>";
                 echo "<td>" . $row["category"] . "</td>";
                 echo "<td>";
@@ -117,6 +115,7 @@ $result = mysqli_query($conn, $sql);
             }
         } else {
             echo "<tr><td colspan='4'>No books found.</td></tr>";
+            exit;
         }
         ?>
     </table>
@@ -134,13 +133,15 @@ $result = mysqli_query($conn, $sql);
         $result = mysqli_query($conn, $sql);
         if (mysqli_num_rows($result) > 0) {
             echo "<script>alert('You have already requested a book!');</script>";
+            $conn->close();
             exit;
         }
         else{
-        $sql = "UPDATE user SET requested_book = '$book_id' WHERE email = '$email'";
-        $result = mysqli_query($conn, $sql);
-        echo "<script>alert('Book requested!');</script>";
-        exit;
+            $sql = "UPDATE user SET requested_book = '$book_id' WHERE email = '$email'";
+            $result = mysqli_query($conn, $sql);
+            echo "<script>alert('Book requested!');</script>";
+            $conn->close();
+            exit;
         }
     }
     ?>
@@ -149,5 +150,4 @@ $result = mysqli_query($conn, $sql);
 
 <?php
 // Close the database connection
-$conn->close();
 ?>

@@ -28,7 +28,7 @@ if (mysqli_num_rows($result) == 1 ) {
 else {
     echo "<script>alert('You have already requested a book!');</script>";
     exit;
-}   
+}
 
 mysqli_close($conn);
 ?>

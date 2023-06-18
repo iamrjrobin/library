@@ -34,7 +34,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if (!$conn) {
             die("Connection failed: " . mysqli_connect_error());
         }
-        $sql = "INSERT INTO book (name, category) VALUES ('$bookName', '$category')";
+        $sql = "INSERT INTO book (name, author_name, category) VALUES ('$bookName', '$authorName', '$category')";
+        $result = mysqli_query($conn, $sql);
+        if($result === TRUE && mysqli_affected_rows($conn)) {
+            echo "<script>alert('Book added successfully!');</script>";
+        }
+        else {
+            echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+            header("Refresh:0");
+        }
     }
 }
 ?>
@@ -77,6 +85,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             background-color: #45a049;
         }
 
+        button{
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+
         .error {
             color: red;
             margin-bottom: 10px;
@@ -105,6 +125,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <input type="text" name="category" id="category" required>
 
         <button type="submit">Add Book</button>
+        <a href="admin.php"><button type="button">Go to Admin Page</button></a>
     </form>
 
 </body>

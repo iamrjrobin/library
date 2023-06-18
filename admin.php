@@ -49,8 +49,8 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Fetch the requested book's ID (replace with the desired book ID)
-$sql = "SELECT u.name, u.email, b.name AS requested_book FROM user u INNER JOIN book b ON u.requested_book = b.id";
+
+$sql = "SELECT u.name, u.email, b.name AS requested_book FROM user u INNER JOIN book b ON u.requested_book = b.id WHERE u.approved IS NULL";
 $result = mysqli_query($conn, $sql);
 
 // Display the user information
@@ -84,6 +84,8 @@ if ($result->num_rows > 0) {
 
 } else {
     echo "<p style='text-align: center;'>No users found who requested Book</p>";
+    echo "<button onclick=\"window.location.href='add_book.php'\" style='background-color: #4CAF50; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; margin: 10px;'>Add Book</button>";
+    echo "<button onclick=\"window.location.href='update.php'\" style='background-color: #4CAF50; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; margin: 10px;'>Update</button>";
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['approve']) ) {
