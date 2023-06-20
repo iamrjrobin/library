@@ -21,7 +21,6 @@ if (!isset($_SESSION['user_id'])) {
     $result = mysqli_query($conn, $sql);
     if(mysqli_num_rows($result) == 0){
         header("Location: view_books.php"); // Redirect to the view_books page if not an admin
-        mysqli_close($conn);
         exit;
     }
 }
@@ -159,18 +158,59 @@ $result = mysqli_query($conn, $sql);
         }
         ?>
     </table>
+    <h2>Delete Book</h2>
     <form action="" method="POST">
-            <label for="id">ID:</label>
-            <input type="text" id="id" name="id" required placeholder="Book ID to update">
-            <button type="submit">Submit</button>
+        <label for="id">ID:</label>
+        <input type="text" id="id" name="id" required placeholder="Book ID to delete">
+        <button type="submit">Delete</button>
     </form>
+    <h2 style="text-align: center;">Update Book Info</h2>
+    <div style="width: 300px; margin: 0 auto;">
+        <form action="" method="POST">
+            <label for="update_id">ID:</label>
+            <input type="text" id="update_id" name="update_id" required placeholder="Book ID to update" style="width: 100%; margin-bottom: 10px;">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required placeholder="New Book Name" style="width: 100%; margin-bottom: 10px;">
+            <label for="author_name">Author Name:</label>
+            <input type="text" id="author_name" name="author_name" required placeholder="New Author Name" style="width: 100%; margin-bottom: 10px;">
+            <label for="category">Category:</label>
+            <input type="text" id="category" name="category" required placeholder="New Category" style="width: 100%; margin-bottom: 10px;">
+            <button type="submit" name="update" style="width: 100%;">Update</button>
+        </form>
+    </div>
     <?php
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        $book_id = $_POST['update_id'];
-        header("Location: edit.php");
-    }
-    ?>
+        if (isset($_POST['id'])){
+            $book_id = $_POST['id'];
+            $sql = "DELETE FROM book WHERE id = $book_id";
+            $result = mysqli_query($conn, $sql);
+            if ($result && mysqli_affected_rows($conn) > 0) {
+                echo "<script>alert('Book deleted!');</script>";
+                header("Location: update.php");
+            } else {
+                echo "<script>alert('Book not found!');</script>";
+                header("Location: update.php");
+            }
+        }
 
+        if (isset($_POST['update'])) {
+            $book_id = $_POST['update_id'];
+            $name = $_POST['name'];
+            $author_name = $_POST['author_name'];
+            $category = $_POST['category'];
+
+            $sql = "UPDATE book SET name = '$name', author_name = '$author_name', category = '$category' WHERE id = $book_id";
+            $result = mysqli_query($conn, $sql);
+
+            if ($result && mysqli_affected_rows($conn) > 0) {
+                echo "<script>alert('Book updated!');</script>";
+                header("Refresh:0");
+            } else {
+                echo "<script>alert('Failed to update book!');</script>";
+                header("Refresh:0");
+            }
+        }
+        mysqli_close();
+    ?>
 
 </body>
 
